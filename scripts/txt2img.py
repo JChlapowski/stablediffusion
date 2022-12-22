@@ -270,6 +270,7 @@ def main(opt):
                                 x_samples.append(x_sample)
                             else:
                                 start_code = x_samples[t - 1]
+                                print(start_code.shape)
                                 mask = .1
                                 sample, _ = sampler.sample(S=opt.steps,
                                                                 conditioning=c,
