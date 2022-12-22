@@ -270,7 +270,8 @@ def main(opt):
                                 x_samples.append(x_sample)
                             else:
                                 prev_sample = x_samples[t - 1]
-                                fourth_channel = torch.randn((prev_sample.shape[0], 1, prev_sample.shape[2] // opt.f, prev_sample.shape[3]) // opt.f, device=device)
+                                print(prev_sample.shape[2])
+                                fourth_channel = torch.randn((prev_sample.shape[0], 1, prev_sample.shape[2], prev_sample.shape[3]), device=device)
                                 start_code = torch.cat((prev_sample, fourth_channel), 1)
                                 print(start_code.shape)
                                 mask = .1
