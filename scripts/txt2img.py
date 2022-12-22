@@ -295,6 +295,8 @@ def main(opt):
                                                             conditioning=c,
                                                             batch_size=opt.n_samples,
                                                             shape=shape,
+                                                            mask=.1,
+                                                            x0=start_code,
                                                             verbose=False,
                                                             unconditional_guidance_scale=opt.scale,
                                                             unconditional_conditioning=uc,
