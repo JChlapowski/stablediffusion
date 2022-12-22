@@ -276,6 +276,7 @@ def main(opt):
                                                                 batch_size=opt.n_samples,
                                                                 shape=shape,
                                                                 mask=mask,
+                                                                x0=start_code,
                                                                 verbose=False,
                                                                 unconditional_guidance_scale=opt.scale,
                                                                 unconditional_conditioning=uc,
@@ -283,7 +284,7 @@ def main(opt):
                                                                 x_T=start_code)
                                 x_sample = model.decode_first_stage(sample)
                                 x_samples.append(x_sample)
-                                
+
                         x_samples = torch.stack(x_samples)
                     else:
                         samples, _ = sampler.sample(S=opt.steps,
