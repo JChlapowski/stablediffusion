@@ -171,6 +171,12 @@ def parse_args():
         default=1,
         help="repeat each prompt in file this often",
     )
+    parser.add_argument(
+        "--timesteps",
+        type=int,
+        default=1,
+        help='number of frames to generate'
+    )
     opt = parser.parse_args()
     return opt
 
@@ -245,17 +251,53 @@ def main(opt):
                         prompts = list(prompts)
                     c = model.get_learned_conditioning(prompts)
                     shape = [opt.C, opt.H // opt.f, opt.W // opt.f]
-                    samples, _ = sampler.sample(S=opt.steps,
-                                                     conditioning=c,
-                                                     batch_size=opt.n_samples,
-                                                     shape=shape,
-                                                     verbose=False,
-                                                     unconditional_guidance_scale=opt.scale,
-                                                     unconditional_conditioning=uc,
-                                                     eta=opt.ddim_eta,
-                                                     x_T=start_code)
 
-                    x_samples = model.decode_first_stage(samples)
+                    if opt.timesteps > 1:
+                        x_samples = []
+                        for t in range(opt.timesteps):
+                            if t == 0:
+                                sample, _ = sampler.sample(S=opt.steps,
+                                                                conditioning=c,
+                                                                batch_size=opt.n_samples,
+                                                                shape=shape,
+                                                                verbose=False,
+                                                                unconditional_guidance_scale=opt.scale,
+                                                                unconditional_conditioning=uc,
+                                                                eta=opt.ddim_eta,
+                                                                x_T=start_code)
+
+                                x_sample = model.decode_first_stage(sample)
+                                x_samples.append(x_sample)
+                            else:
+                                start_code = x_samples[t - 1]
+                                mask = .1
+                                sample, _ = sampler.sample(S=opt.steps,
+                                                                conditioning=c,
+                                                                batch_size=opt.n_samples,
+                                                                shape=shape,
+                                                                mask=mask,
+                                                                verbose=False,
+                                                                unconditional_guidance_scale=opt.scale,
+                                                                unconditional_conditioning=uc,
+                                                                eta=opt.ddim_eta,
+                                                                x_T=start_code)
+                                x_sample = model.decode_first_stage(sample)
+                                x_samples.append(x_sample)
+                                
+                        x_samples = torch.stack(x_samples)
+                    else:
+                        samples, _ = sampler.sample(S=opt.steps,
+                                                            conditioning=c,
+                                                            batch_size=opt.n_samples,
+                                                            shape=shape,
+                                                            verbose=False,
+                                                            unconditional_guidance_scale=opt.scale,
+                                                            unconditional_conditioning=uc,
+                                                            eta=opt.ddim_eta,
+                                                            x_T=start_code)
+
+                        x_samples = model.decode_first_stage(samples)
+
                     x_samples = torch.clamp((x_samples + 1.0) / 2.0, min=0.0, max=1.0)
 
                     for x_sample in x_samples:
