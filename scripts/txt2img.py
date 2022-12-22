@@ -295,7 +295,7 @@ def main(opt):
                                                             conditioning=c,
                                                             batch_size=opt.n_samples,
                                                             shape=shape,
-                                                            mask=.9,
+                                                            mask=.02,
                                                             x0=start_code,
                                                             verbose=False,
                                                             unconditional_guidance_scale=opt.scale,
