@@ -269,7 +269,9 @@ def main(opt):
                                 x_sample = model.decode_first_stage(sample)
                                 x_samples.append(x_sample)
                             else:
-                                start_code = x_samples[t - 1]
+                                prev_sample = x_samples[t - 1]
+                                fourth_channel = torch.randn((prev_sample.shape(0), 1, prev_sample.shape(2), prev_sample.shape(3)))
+                                start_code = torch.cat([prev_sample, fourth_channel], dim=1)
                                 print(start_code.shape)
                                 mask = .1
                                 sample, _ = sampler.sample(S=opt.steps,
